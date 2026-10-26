@@ -1,0 +1,40 @@
+# docker/docker-compose.yml
+#
+# Optional: spins up a real Postgres instance so this pipeline can run
+# against a "production-shaped" database instead of the default SQLite
+# file. Not required to run the pipeline or its tests — SQLite works out
+# of the box with zero setup, which is why it's the default.
+#
+# Usage:
+#   cd docker && docker compose up -d
+#   export DATABASE_URL="postgresql+psycopg2://supply_chain:supply_chain@localhost:5432/supply_chain"
+#   pip install psycopg2-binary
+#   cd .. && python run_pipeline.py
+#
+# Why this is worth having even though it's optional: it's the honest
+# answer to "how would you actually deploy this?" — a laptop SQLite file
+# is a portfolio-project convenience, not a real answer. This file is
+# what SQLite -> Postgres looks like in practice: one new file, one
+# environment variable, zero application code changes (see src/db.py).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: supply_chain_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: supply_chain
+      POSTGRES_PASSWORD: supply_chain
+      POSTGRES_DB: supply_chain
+    ports:
+      - "5432:5432"
+    volumes:
+      - supply_chain_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U supply_chain"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  supply_chain_pgdata:

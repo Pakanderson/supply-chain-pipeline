@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+db/*.db
+data/raw/*.csv
+.DS_Store
+.prefect/
+
+# Python environment
+.venv/
+venv/
+
+# Personal notes (kept local)
+docs/WALKTHROUGH.md
